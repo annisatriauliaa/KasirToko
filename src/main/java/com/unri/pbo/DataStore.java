@@ -1,6 +1,8 @@
 package com.unri.pbo;
 
 import java.sql.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -16,7 +18,7 @@ public class DataStore {
         return DriverManager.getConnection(URL, USER, PASS);
     }
 
-    // ================= MODEL DATA (TETAP SAMA SEPERTI SEBELUMNYA) =================
+    // ================= MODEL DATA =================
     public static class Produk {
         public String kode;
         public String nama;
@@ -57,6 +59,25 @@ public class DataStore {
     public static List<Produk> daftarProduk = new ArrayList<>();
     public static List<Transaksi> daftarRiwayat = new ArrayList<>();
     public static String currentUser = "";
+    public static String currentRole = ""; // Menyimpan 'admin' atau 'kasir'
+
+    public static boolean isAdmin() {
+        return "admin".equalsIgnoreCase(currentRole);
+    }
+
+    // ================= HELPER FORMAT & PARSE RUPIAH =================
+    public static String formatRupiah(double angka) {
+        DecimalFormatSymbols simbol = new DecimalFormatSymbols();
+        simbol.setGroupingSeparator('.');
+        DecimalFormat df = new DecimalFormat("#,###", simbol);
+        return "Rp " + df.format((long) angka);
+    }
+
+    public static double parseRupiah(String teks) {
+        String bersih = teks.replace("Rp", "").replace(".", "").replace(",", "").trim();
+        if (bersih.isEmpty()) return 0;
+        return Double.parseDouble(bersih);
+    }
 
     // ================= 1. AUTENTIKASI LOGIN =================
     public static boolean validasiLogin(String username, String password) {
@@ -70,8 +91,9 @@ public class DataStore {
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     currentUser = rs.getString("nama_lengkap");
-                    loadProdukFromDB();   // Langsung muat data produk saat login berhasil
-                    loadRiwayatFromDB();  // Langsung muat riwayat transaksi
+                    currentRole = rs.getString("username").toLowerCase(); // "admin" atau "kasir"
+                    loadProdukFromDB();
+                    loadRiwayatFromDB();
                     return true;
                 }
             }
@@ -119,7 +141,7 @@ public class DataStore {
             pst.setInt(6, p.stok);
             pst.executeUpdate();
             
-            loadProdukFromDB(); // Refresh list lokal
+            loadProdukFromDB();
             return true;
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Gagal menambah produk: " + e.getMessage());
@@ -167,18 +189,16 @@ public class DataStore {
     // ================= 3. TRANSAKSI PENJUALAN & PEMBELIAN =================
     public static boolean prosesTransaksi(String idTrx, String jenis, String kodeProduk, String namaItem, int jumlah, double totalHarga) {
         String sqlInsertTrx = "INSERT INTO transaksi (id_transaksi, jenis, kode_produk, nama_item, jumlah, total_harga) VALUES (?, ?, ?, ?, ?, ?)";
-        // Jika PENJUALAN stok berkurang (-), jika PEMBELIAN stok bertambah (+)
         String sqlUpdateStok = jenis.equals("PENJUALAN") 
                 ? "UPDATE produk SET stok = stok - ? WHERE kode = ?"
                 : "UPDATE produk SET stok = stok + ? WHERE kode = ?";
 
         try (Connection conn = getConnection()) {
-            conn.setAutoCommit(false); // Mulai transaksi database agar aman
+            conn.setAutoCommit(false);
             
             try (PreparedStatement pstTrx = conn.prepareStatement(sqlInsertTrx);
                  PreparedStatement pstStok = conn.prepareStatement(sqlUpdateStok)) {
                 
-                // Simpan ke tabel transaksi
                 pstTrx.setString(1, idTrx);
                 pstTrx.setString(2, jenis);
                 pstTrx.setString(3, kodeProduk);
@@ -187,17 +207,16 @@ public class DataStore {
                 pstTrx.setDouble(6, totalHarga);
                 pstTrx.executeUpdate();
 
-                // Update stok di tabel produk
                 pstStok.setInt(1, jumlah);
                 pstStok.setString(2, kodeProduk);
                 pstStok.executeUpdate();
 
-                conn.commit(); // Simpan permanen
+                conn.commit();
                 loadProdukFromDB();
                 loadRiwayatFromDB();
                 return true;
             } catch (SQLException ex) {
-                conn.rollback(); // Batalkan jika ada error di tengah jalan
+                conn.rollback();
                 throw ex;
             }
         } catch (SQLException e) {
