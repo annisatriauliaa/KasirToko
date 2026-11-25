@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 public class DataStore {
 
     // ================= KONFIGURASI DATABASE MYSQL =================
-    private static final String URL = "jdbc:mysql://localhost:3306/db_techstore_pos";
+    private static final String URL = "jdbc:mysql://localhost:3306/techstore_pos";
     private static final String USER = "root";
     private static final String PASS = ""; // Kosongkan jika memakai XAMPP default
 
