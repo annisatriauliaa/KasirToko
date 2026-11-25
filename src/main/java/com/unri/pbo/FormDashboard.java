@@ -72,7 +72,6 @@ public class FormDashboard extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("TECHSTORE POS - Dashboard Utama");
-        setPreferredSize(new java.awt.Dimension(1200, 700));
 
         jPanel1.setBackground(new java.awt.Color(241, 245, 249));
         jPanel1.setForeground(new java.awt.Color(16, 185, 129));
@@ -387,27 +386,27 @@ public class FormDashboard extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
-        new FormProduk().setVisible(true);        // TODO add your handling code here:
+        new PanelProduk().setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem10ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        new FormPelanggan().setVisible(true);        // TODO add your handling code here:
+        new PanelPelanggan().setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
-        new FormSupplier().setVisible(true);        // TODO add your handling code here:
+        new PanelSupplier().setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-        new FormPenjualan().setVisible(true);        // TODO add your handling code here:
+        new PanelPenjualan().setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
     private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
-        new FormPembelian().setVisible(true);        // TODO add your handling code here:
+        new PanelPembelian().setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
     private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
-        new FormRiwayat().setVisible(true);        // TODO add your handling code here:
+        new PanelRiwayat().setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem14ActionPerformed
 
     private void jMenuItem15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem15ActionPerformed
