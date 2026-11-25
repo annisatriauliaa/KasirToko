@@ -17,6 +17,8 @@ public class FormLogin extends javax.swing.JFrame {
      */
     public FormLogin() {
         initComponents();
+        setLocationRelativeTo(null); // Agar form muncul di tengah layar
+        setTitle("TECHSTORE POS - Login");
     }
 
     /**
@@ -195,7 +197,28 @@ public class FormLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        String username = jTextField1.getText().trim();
+        String password = jTextField2.getText().trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Username dan Password tidak boleh kosong!", 
+                "Peringatan", 
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (DataStore.validasiLogin(username, password)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Selamat datang, " + DataStore.currentUser + "!");
+            new FormDashboard().setVisible(true);
+            this.dispose();
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Username atau Password salah!", 
+                "Login Gagal", 
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+      // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -218,7 +241,7 @@ public class FormLogin extends javax.swing.JFrame {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new FormLogin().setVisible(true));
     }
@@ -239,3 +262,4 @@ public class FormLogin extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
 }
+

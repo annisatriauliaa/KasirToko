@@ -13,10 +13,18 @@
     </properties>
 
     <dependencies>
+        <!-- Dependency bawaan dosen (JANGAN DIHAPUS) -->
         <dependency>
             <groupId>com.dosen</groupId>
             <artifactId>project-pos</artifactId>
             <version>1.0</version>
+        </dependency>
+
+        <!-- Tambahkan driver MySQL di bawah ini -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.1.0</version>
         </dependency>
     </dependencies>
 </project>
