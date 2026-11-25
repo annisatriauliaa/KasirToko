@@ -68,8 +68,6 @@ public class FormPelanggan extends javax.swing.JFrame {
         jMenuItem16 = new javax.swing.JMenuItem();
         menuAdmin = new javax.swing.JMenu();
 
-        jFrame1.setPreferredSize(new java.awt.Dimension(1200, 700));
-
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
         jFrame1Layout.setHorizontalGroup(
@@ -297,7 +295,6 @@ public class FormPelanggan extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("TECHSTORE POS - Master Data Pelanggan");
-        setPreferredSize(new java.awt.Dimension(1200, 700));
 
         jPanel1.setBackground(new java.awt.Color(241, 245, 249));
 
@@ -453,7 +450,7 @@ public class FormPelanggan extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-        new FormKasir().setVisible(true);        // TODO add your handling code here:
+        new FormPenjualan().setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
     private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed

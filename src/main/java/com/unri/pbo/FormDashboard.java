@@ -399,7 +399,7 @@ public class FormDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-        new FormKasir().setVisible(true);        // TODO add your handling code here:
+        new FormPenjualan().setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
     private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
