@@ -46,12 +46,13 @@ public class PanelSupplier extends javax.swing.JPanel {
             try (java.sql.ResultSet rs = ps.executeQuery()) {
                 int no = 1;
                 while (rs.next()) {
-                    Supplier s = new Supplier(
+                    SupplierToko s = new SupplierToko(
                         rs.getString("id"),
                         rs.getString("nama"),
                         rs.getString("alamat"),
                         rs.getString("no_telepon"),
-                        "Distributor"
+                        "Distributor",
+                        "Elektronik"
                     );
 
                     model.addRow(new Object[]{
@@ -328,9 +329,10 @@ public class PanelSupplier extends javax.swing.JPanel {
             return;
         }
 
-        Supplier supplierObj;
+        SupplierToko supplierObj;
         try {
-            supplierObj = new Supplier(id, nama, alamat, telp, "Distributor");
+            supplierObj = new SupplierToko(id, nama, alamat, telp, "Distributor", "Elektronik");
+            supplierObj.tampilkanData(); // Menampilkan log OOP ke console NetBeans
         } catch (IllegalArgumentException ex) {
             javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage(), "Input Tidak Valid", javax.swing.JOptionPane.ERROR_MESSAGE);
             return;

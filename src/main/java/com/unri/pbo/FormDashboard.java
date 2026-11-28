@@ -93,19 +93,21 @@ public class FormDashboard extends javax.swing.JFrame {
             javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
             model.setRowCount(0);
 
-            int batas = Math.min(DataStore.daftarRiwayat.size(), 50);
-            for (int i = 0; i < batas; i++) {
-                DataStore.Transaksi t = DataStore.daftarRiwayat.get(i);
-                String keterangan = t.jenis + " - " + t.namaItem + " (" + t.jumlah + " pcs)";
+            java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        int batas = Math.min(DataStore.daftarRiwayat.size(), 10);
+        for (int i = 0; i < batas; i++) {
+            RiwayatTransaksiToko t = DataStore.daftarRiwayat.get(i);
+            String tglStr = (t.getWaktu() != null) ? t.getWaktu().format(fmt) : "-";
+            String keterangan = t.getJenisTransaksi() + " - " + t.getDetailAktivitas() + " (" + t.getJumlahBaru() + " pcs)";
 
-                model.addRow(new Object[]{
-                    t.idTransaksi,
-                    t.tanggal,
-                    namaKasir,
-                    DataStore.formatRupiah(t.totalHarga),
-                    keterangan
-                });
-            }
+            model.addRow(new Object[]{
+                t.getIdTransaksi(),
+                tglStr,
+                t.getPengguna(),
+                DataStore.formatRupiah(t.getTotalBaru().doubleValue()),
+                keterangan
+            });
+        }
 
         } catch (java.sql.SQLException e) {
             System.err.println("Gagal memuat data dashboard: " + e.getMessage());

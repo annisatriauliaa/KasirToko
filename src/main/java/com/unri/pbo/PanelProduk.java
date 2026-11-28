@@ -30,21 +30,24 @@ public class PanelProduk extends javax.swing.JPanel {
         });
     }
 
-    private void tampilData(String keyword) {
+   private void tampilData(String keyword) {
         DataStore.loadProdukFromDB();
         javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
 
         String cari = keyword.trim().toLowerCase();
-        for (DataStore.Produk p : DataStore.daftarProduk) {
-            if (cari.isEmpty() || p.kode.toLowerCase().contains(cari) || p.nama.toLowerCase().contains(cari) || p.kategori.toLowerCase().contains(cari)) {
+        for (ProdukToko p : DataStore.daftarProduk) {
+            if (cari.isEmpty() 
+                    || p.getIdProduk().toLowerCase().contains(cari) 
+                    || p.getNamaProduk().toLowerCase().contains(cari) 
+                    || p.getKategori().toLowerCase().contains(cari)) {
                 model.addRow(new Object[]{
-                    p.kode,
-                    p.nama,
-                    p.kategori,
-                    (int) p.hargaBeli,
-                    (int) p.hargaJual,
-                    p.stok
+                    p.getIdProduk(),
+                    p.getNamaProduk(),
+                    p.getKategori(),
+                    p.getHargaBeli().intValue(),
+                    p.getHargaJual().intValue(),
+                    p.getStok()
                 });
             }
         }
@@ -343,7 +346,8 @@ public class PanelProduk extends javax.swing.JPanel {
             double hargaJual = Double.parseDouble(strJual);
             int stok = Integer.parseInt(strStok);
 
-            DataStore.Produk produk = new DataStore.Produk(kode, nama, kategori, hargaBeli, hargaJual, stok);
+            ProdukToko produk = new ProdukToko(kode, nama, kategori, hargaBeli, hargaJual, stok);
+            produk.tampilkanProduk(); // Menampilkan log OOP ke console NetBeans
 
             if (modeEdit) {
                 if (!"admin".equalsIgnoreCase(DataStore.currentRole)) {
@@ -362,8 +366,10 @@ public class PanelProduk extends javax.swing.JPanel {
                     tampilData("");
                 }
             }
-       } catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Harga Beli, Harga Jual, dan Stok harus berupa angka!", "Input Tidak Valid", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Validasi Produk", javax.swing.JOptionPane.WARNING_MESSAGE);
         } // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
 

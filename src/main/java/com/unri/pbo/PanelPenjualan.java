@@ -49,8 +49,8 @@ public class PanelPenjualan extends javax.swing.JPanel {
         DataStore.loadProdukFromDB();
         jComboBox1.removeAllItems();
         jComboBox1.addItem("-- Pilih Kode Produk --");
-        for (DataStore.Produk p : DataStore.daftarProduk) {
-            jComboBox1.addItem(p.kode + " - " + p.nama);
+        for (ProdukToko p : DataStore.daftarProduk) {
+            jComboBox1.addItem(p.getIdProduk() + " - " + p.getNamaProduk());
         }
         jComboBox1.setSelectedIndex(0);
     }
@@ -63,7 +63,7 @@ public class PanelPenjualan extends javax.swing.JPanel {
         return item.contains(" - ") ? item.split(" - ")[0].trim() : item.trim();
     }
 
-    private void pilihProdukDariCombo() {
+   private void pilihProdukDariCombo() {
         String kode = getKodeTerpilih();
         if (kode.isEmpty()) {
             jTextField10.setText("");
@@ -71,10 +71,10 @@ public class PanelPenjualan extends javax.swing.JPanel {
             return;
         }
 
-        for (DataStore.Produk p : DataStore.daftarProduk) {
-            if (p.kode.equalsIgnoreCase(kode)) {
-                jTextField10.setText(p.nama);
-                jTextField11.setText(DataStore.formatRupiah(p.hargaJual));
+        for (ProdukToko p : DataStore.daftarProduk) {
+            if (p.getIdProduk().equalsIgnoreCase(kode)) {
+                jTextField10.setText(p.getNamaProduk());
+                jTextField11.setText(DataStore.formatRupiah(p.getHargaJual().doubleValue()));
                 jTextField12.requestFocus();
                 return;
             }
@@ -437,9 +437,9 @@ public class PanelPenjualan extends javax.swing.JPanel {
 
         // Cek ketersediaan stok di database
         int stokTersedia = 0;
-        for (DataStore.Produk p : DataStore.daftarProduk) {
-            if (p.kode.equalsIgnoreCase(kode)) {
-                stokTersedia = p.stok;
+        for (ProdukToko p : DataStore.daftarProduk) {
+            if (p.getIdProduk().equalsIgnoreCase(kode)) {
+                stokTersedia = p.getStok();
                 break;
             }
         }
@@ -495,7 +495,7 @@ public class PanelPenjualan extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-    javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
         if (model.getRowCount() == 0) {
             javax.swing.JOptionPane.showMessageDialog(this, "Keranjang belanja masih kosong!");
             return;
@@ -524,6 +524,11 @@ public class PanelPenjualan extends javax.swing.JPanel {
         String kasir = DataStore.currentUser.isEmpty() ? "Admin" : DataStore.currentUser;
         boolean semuaBerhasil = true;
 
+        // Instansiasi objek OOP PenjualanToko (Inheritance dari Penjualan JAR dosen)
+        Pelanggan plgObj = new Pelanggan("PLG-UMUM", pelanggan, "-", "-", "Umum");
+        PenjualanToko trxOop = new PenjualanToko(baseId, plgObj, kasir);
+        trxOop.setTunai(tunai);
+
         // Susun rincian item untuk tampilan struk kasir
         StringBuilder daftarStruk = new StringBuilder();
         for (int i = 0; i < model.getRowCount(); i++) {
@@ -532,6 +537,18 @@ public class PanelPenjualan extends javax.swing.JPanel {
             String hargaStr = model.getValueAt(i, 2).toString();
             int qty = Integer.parseInt(model.getValueAt(i, 3).toString());
             double subtotal = DataStore.parseRupiah(model.getValueAt(i, 4).toString());
+
+            // Masukkan item ke objek PenjualanToko
+            for (ProdukToko p : DataStore.daftarProduk) {
+                if (p.getIdProduk().equalsIgnoreCase(kodeProduk)) {
+                    ProdukToko itemSementara = new ProdukToko(
+                        p.getIdProduk(), p.getNamaProduk(), p.getKategori(),
+                        p.getHargaBeli().doubleValue(), p.getHargaJual().doubleValue(), p.getStok()
+                    );
+                    trxOop.tambahPenjualan(itemSementara, qty, kasir, "Penjualan Kasir");
+                    break;
+                }
+            }
 
             daftarStruk.append(String.format("%-18s\n  %d x %s = %s\n", 
                 namaItem, qty, hargaStr, DataStore.formatRupiah(subtotal)));
@@ -544,7 +561,9 @@ public class PanelPenjualan extends javax.swing.JPanel {
         }
 
         if (semuaBerhasil) {
-            double kembalian = tunai - totalBelanja;
+            trxOop.finalisasiTransaksi(kasir);
+            trxOop.cetakNota(); // Mencetak nota ke console NetBeans sebagai bukti OOP
+            double kembalian = trxOop.hitungKembalian().doubleValue();
 
             // Susun tampilan Struk Kasir
             String isiStruk = 
@@ -596,7 +615,7 @@ public class PanelPenjualan extends javax.swing.JPanel {
 
             model.setRowCount(0);
             siapkanTransaksiBaru();
-        }// TODO add your handling code here:
+        }  // TODO add your handling code here:
     }//GEN-LAST:event_jButton8ActionPerformed
 
 

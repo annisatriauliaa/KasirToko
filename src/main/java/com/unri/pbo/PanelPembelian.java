@@ -60,10 +60,10 @@ public class PanelPembelian extends javax.swing.JPanel {
         if (kode.isEmpty()) return;
 
         DataStore.loadProdukFromDB();
-        for (DataStore.Produk p : DataStore.daftarProduk) {
-            if (p.kode.equalsIgnoreCase(kode)) {
-                jTextField10.setText(p.nama);
-                jTextField11.setText(DataStore.formatRupiah(p.hargaBeli));
+        for (ProdukToko p : DataStore.daftarProduk) {
+            if (p.getIdProduk().equalsIgnoreCase(kode)) {
+                jTextField10.setText(p.getNamaProduk());
+                jTextField11.setText(DataStore.formatRupiah(p.getHargaBeli().doubleValue()));
                 jTextField12.requestFocus();
                 return;
             }

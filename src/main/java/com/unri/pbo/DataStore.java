@@ -10,60 +10,17 @@ import javax.swing.JOptionPane;
 public class DataStore {
 
     // ================= KONFIGURASI DATABASE MYSQL =================
-    private static final String URL = "jdbc:mysql://localhost:3306/techstore_pos";
-    private static final String USER = "root";
-    private static final String PASS = ""; // Kosongkan jika memakai XAMPP default
-
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASS);
+        return DatabaseConnection.getConnection();
     }
 
-    // ================= MODEL DATA =================
-    public static class Produk {
-        public String kode;
-        public String nama;
-        public String kategori;
-        public double hargaBeli;
-        public double hargaJual;
-        public int stok;
+    
 
-        public Produk(String kode, String nama, String kategori, double hargaBeli, double hargaJual, int stok) {
-            this.kode = kode;
-            this.nama = nama;
-            this.kategori = kategori;
-            this.hargaBeli = hargaBeli;
-            this.hargaJual = hargaJual;
-            this.stok = stok;
-        }
-    }
-
-    public static class Transaksi {
-        public String idTransaksi;
-        public String tanggal;
-        public String jenis; // "PENJUALAN" atau "PEMBELIAN"
-        public String namaItem;
-        public int jumlah;
-        public double totalHarga;
-
-        public Transaksi(String idTransaksi, String tanggal, String jenis, String namaItem, int jumlah, double totalHarga) {
-            this.idTransaksi = idTransaksi;
-            this.tanggal = tanggal;
-            this.jenis = jenis;
-            this.namaItem = namaItem;
-            this.jumlah = jumlah;
-            this.totalHarga = totalHarga;
-        }
-    }
-
-    // ================= PENYIMPANAN DATA (SINKRON DENGAN MYSQL) =================
-    public static List<Produk> daftarProduk = new ArrayList<>();
-    public static List<Transaksi> daftarRiwayat = new ArrayList<>();
+   // ================= PENYIMPANAN DATA (SINKRON DENGAN MYSQL) =================
+    public static List<ProdukToko> daftarProduk = new ArrayList<>();
+    public static List<RiwayatTransaksiToko> daftarRiwayat = new ArrayList<>();
     public static String currentUser = "";
-    public static String currentRole = ""; // Menyimpan 'admin' atau 'kasir'
-
-    public static boolean isAdmin() {
-        return "admin".equalsIgnoreCase(currentRole);
-    }
+    public static String currentRole = "";
 
     // ================= HELPER FORMAT & PARSE RUPIAH =================
     public static String formatRupiah(double angka) {
@@ -114,7 +71,7 @@ public class DataStore {
              ResultSet rs = stmt.executeQuery(sql)) {
             
             while (rs.next()) {
-                daftarProduk.add(new Produk(
+                daftarProduk.add(new ProdukToko(
                     rs.getString("kode"),
                     rs.getString("nama"),
                     rs.getString("kategori"),
@@ -128,17 +85,17 @@ public class DataStore {
         }
     }
 
-    public static boolean tambahProduk(Produk p) {
+    public static boolean tambahProduk(ProdukToko p) {
         String sql = "INSERT INTO produk (kode, nama, kategori, harga_beli, harga_jual, stok) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
             
-            pst.setString(1, p.kode);
-            pst.setString(2, p.nama);
-            pst.setString(3, p.kategori);
-            pst.setDouble(4, p.hargaBeli);
-            pst.setDouble(5, p.hargaJual);
-            pst.setInt(6, p.stok);
+            pst.setString(1, p.getIdProduk());
+            pst.setString(2, p.getNamaProduk());
+            pst.setString(3, p.getKategori());
+            pst.setDouble(4, p.getHargaBeli().doubleValue());
+            pst.setDouble(5, p.getHargaJual().doubleValue());
+            pst.setInt(6, p.getStok());
             pst.executeUpdate();
             
             loadProdukFromDB();
@@ -149,17 +106,17 @@ public class DataStore {
         }
     }
 
-    public static boolean updateProduk(Produk p) {
+    public static boolean updateProduk(ProdukToko p) {
         String sql = "UPDATE produk SET nama=?, kategori=?, harga_beli=?, harga_jual=?, stok=? WHERE kode=?";
         try (Connection conn = getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
             
-            pst.setString(1, p.nama);
-            pst.setString(2, p.kategori);
-            pst.setDouble(3, p.hargaBeli);
-            pst.setDouble(4, p.hargaJual);
-            pst.setInt(5, p.stok);
-            pst.setString(6, p.kode);
+            pst.setString(1, p.getNamaProduk());
+            pst.setString(2, p.getKategori());
+            pst.setDouble(3, p.getHargaBeli().doubleValue());
+            pst.setDouble(4, p.getHargaJual().doubleValue());
+            pst.setInt(5, p.getStok());
+            pst.setString(6, p.getIdProduk());
             pst.executeUpdate();
             
             loadProdukFromDB();
@@ -169,7 +126,7 @@ public class DataStore {
             return false;
         }
     }
-
+    
     public static boolean hapusProduk(String kode) {
         String sql = "DELETE FROM produk WHERE kode=?";
         try (Connection conn = getConnection();
@@ -234,13 +191,14 @@ public class DataStore {
              ResultSet rs = stmt.executeQuery(sql)) {
             
             while (rs.next()) {
-                daftarRiwayat.add(new Transaksi(
+                daftarRiwayat.add(new RiwayatTransaksiToko(
                     rs.getString("id_transaksi"),
-                    rs.getString("tanggal"),
                     rs.getString("jenis"),
+                    rs.getString("kode_produk"),
                     rs.getString("nama_item"),
                     rs.getInt("jumlah"),
-                    rs.getDouble("total_harga")
+                    rs.getDouble("total_harga"),
+                    currentUser.isEmpty() ? "Admin" : currentUser
                 ));
             }
         } catch (SQLException e) {

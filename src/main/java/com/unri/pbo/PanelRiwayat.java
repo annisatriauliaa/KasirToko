@@ -30,12 +30,14 @@ public class PanelRiwayat extends javax.swing.JPanel {
         javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
 
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String dariTgl = jTextField6.getText().trim();
         String sampaiTgl = jTextField16.getText().trim();
         String filterJenis = jTextField17.getText().trim().toUpperCase();
 
-        for (DataStore.Transaksi t : DataStore.daftarRiwayat) {
-            String tglSaja = (t.tanggal != null && t.tanggal.length() >= 10) ? t.tanggal.substring(0, 10) : "";
+        for (RiwayatTransaksiToko t : DataStore.daftarRiwayat) {
+            String tglLengkap = (t.getWaktu() != null) ? t.getWaktu().format(fmt) : "";
+            String tglSaja = (tglLengkap.length() >= 10) ? tglLengkap.substring(0, 10) : "";
 
             // Filter Dari Tanggal
             if (!dariTgl.isEmpty() && !tglSaja.isEmpty() && tglSaja.compareTo(dariTgl) < 0) {
@@ -46,20 +48,21 @@ public class PanelRiwayat extends javax.swing.JPanel {
                 continue;
             }
             // Filter Jenis Transaksi
-            if (!filterJenis.isEmpty() && !filterJenis.equals("SEMUA") && !t.jenis.toUpperCase().contains(filterJenis)) {
+            if (!filterJenis.isEmpty() && !filterJenis.equals("SEMUA") && !t.getJenisTransaksi().toUpperCase().contains(filterJenis)) {
                 continue;
             }
 
             model.addRow(new Object[]{
-                t.idTransaksi,
-                t.tanggal,
-                t.jenis,
-                t.namaItem + " (" + t.jumlah + " pcs)",
-                DataStore.currentUser.isEmpty() ? "-" : DataStore.currentUser,
-                DataStore.formatRupiah(t.totalHarga)
+                t.getIdTransaksi(),
+                tglLengkap,
+                t.getJenisTransaksi(),
+                t.getDetailAktivitas() + " (" + t.getJumlahBaru() + " pcs)",
+                t.getPengguna(),
+                DataStore.formatRupiah(t.getTotalBaru().doubleValue())
             });
         }
     }
+    
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
