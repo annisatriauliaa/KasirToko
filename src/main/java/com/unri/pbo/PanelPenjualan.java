@@ -23,6 +23,7 @@ public class PanelPenjualan extends javax.swing.JPanel {
         javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
         model.setRowCount(0); // Kosongkan baris bawaan NetBeans
 
+        isiComboProduk();
         siapkanTransaksiBaru();
 
         // Hak akses: Kasir bisa menambah & memproses transaksi, tombol Hapus Item khusus Admin
@@ -30,14 +31,8 @@ public class PanelPenjualan extends javax.swing.JPanel {
             jButton7.setEnabled(false);
         }
 
-        // Auto-fill Nama Produk & Harga saat Kode Produk diketik/Enter
-        jTextField9.addActionListener(e -> cariProdukOtomatis());
-        jTextField9.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusLost(java.awt.event.FocusEvent e) {
-                cariProdukOtomatis();
-            }
-        });
+        // Auto-fill Nama Produk & Harga saat item di jComboBox1 dipilih
+        jComboBox1.addActionListener(e -> pilihProdukDariCombo());
 
         // Hitung kembalian otomatis saat kolom Tunai (jTextField14) diketik
         jTextField14.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -48,6 +43,42 @@ public class PanelPenjualan extends javax.swing.JPanel {
             @Override
             public void changedUpdate(javax.swing.event.DocumentEvent e) { hitungKembalian(); }
         });
+    }
+
+    private void isiComboProduk() {
+        DataStore.loadProdukFromDB();
+        jComboBox1.removeAllItems();
+        jComboBox1.addItem("-- Pilih Kode Produk --");
+        for (DataStore.Produk p : DataStore.daftarProduk) {
+            jComboBox1.addItem(p.kode + " - " + p.nama);
+        }
+        jComboBox1.setSelectedIndex(0);
+    }
+
+    private String getKodeTerpilih() {
+        if (jComboBox1.getSelectedIndex() <= 0 || jComboBox1.getSelectedItem() == null) {
+            return "";
+        }
+        String item = jComboBox1.getSelectedItem().toString();
+        return item.contains(" - ") ? item.split(" - ")[0].trim() : item.trim();
+    }
+
+    private void pilihProdukDariCombo() {
+        String kode = getKodeTerpilih();
+        if (kode.isEmpty()) {
+            jTextField10.setText("");
+            jTextField11.setText("");
+            return;
+        }
+
+        for (DataStore.Produk p : DataStore.daftarProduk) {
+            if (p.kode.equalsIgnoreCase(kode)) {
+                jTextField10.setText(p.nama);
+                jTextField11.setText(DataStore.formatRupiah(p.hargaJual));
+                jTextField12.requestFocus();
+                return;
+            }
+        }
     }
 
     private void siapkanTransaksiBaru() {
@@ -72,41 +103,24 @@ public class PanelPenjualan extends javax.swing.JPanel {
         jTextField15.setText(DataStore.formatRupiah(0));
     }
 
-    private void cariProdukOtomatis() {
-        String kode = jTextField9.getText().trim();
-        if (kode.isEmpty()) return;
-
-        DataStore.loadProdukFromDB();
-        for (DataStore.Produk p : DataStore.daftarProduk) {
-            if (p.kode.equalsIgnoreCase(kode)) {
-                jTextField10.setText(p.nama);
-                jTextField11.setText(DataStore.formatRupiah(p.hargaJual));
-                jTextField12.requestFocus();
-                return;
-            }
-        }
-        jTextField10.setText("");
-        jTextField11.setText("");
-    }
-
     private void hitungTotalKeranjang() {
         javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
-      totalBelanja = 0;
-      for (int i = 0; i < model.getRowCount(); i++) {
-          totalBelanja += DataStore.parseRupiah(model.getValueAt(i, 4).toString());
-      }
-      jTextField13.setText(DataStore.formatRupiah(totalBelanja));
-      hitungKembalian();
+        totalBelanja = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            totalBelanja += DataStore.parseRupiah(model.getValueAt(i, 4).toString());
+        }
+        jTextField13.setText(DataStore.formatRupiah(totalBelanja));
+        hitungKembalian();
     }
 
     private void hitungKembalian() {
         try {
             double tunai = DataStore.parseRupiah(jTextField14.getText());
-          double kembalian = tunai - totalBelanja;
-          jTextField15.setText(kembalian < 0 ? "- " + DataStore.formatRupiah(Math.abs(kembalian)) : DataStore.formatRupiah(kembalian));
-      } catch (NumberFormatException e) {
-          jTextField15.setText(DataStore.formatRupiah(0));
-      }
+            double kembalian = tunai - totalBelanja;
+            jTextField15.setText(kembalian < 0 ? "- " + DataStore.formatRupiah(Math.abs(kembalian)) : DataStore.formatRupiah(kembalian));
+        } catch (NumberFormatException e) {
+            jTextField15.setText(DataStore.formatRupiah(0));
+        }
     }
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -120,7 +134,6 @@ public class PanelPenjualan extends javax.swing.JPanel {
         jLabel10 = new javax.swing.JLabel();
         jTextField8 = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        jTextField9 = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         jTextField10 = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
@@ -128,6 +141,7 @@ public class PanelPenjualan extends javax.swing.JPanel {
         jLabel14 = new javax.swing.JLabel();
         jTextField12 = new javax.swing.JTextField();
         jButton6 = new javax.swing.JButton();
+        jComboBox1 = new javax.swing.JComboBox<>();
         jPanel7 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -187,29 +201,31 @@ public class PanelPenjualan extends javax.swing.JPanel {
             }
         });
 
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
+                    .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
                     .addComponent(jLabel8)
                     .addComponent(jLabel7)
                     .addComponent(jLabel9)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField7, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
                     .addComponent(jLabel10)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField8, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
                     .addComponent(jLabel11)
-                    .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel12)
-                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField10, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
                     .addComponent(jLabel13)
-                    .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField11, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
                     .addComponent(jLabel14)
-                    .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextField12, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -232,7 +248,7 @@ public class PanelPenjualan extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel11)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel12)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -247,7 +263,7 @@ public class PanelPenjualan extends javax.swing.JPanel {
                 .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(337, Short.MAX_VALUE))
         );
 
         jPanel7.setBackground(new java.awt.Color(255, 255, 255));
@@ -400,13 +416,13 @@ public class PanelPenjualan extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-    String kode = jTextField9.getText().trim();
+    String kode = getKodeTerpilih();
         String nama = jTextField10.getText().trim();
         String strHarga = jTextField11.getText().trim();
         String strQty = jTextField12.getText().trim();
 
         if (kode.isEmpty() || nama.isEmpty() || strHarga.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Masukkan Kode Produk yang valid terlebih dahulu!");
+            javax.swing.JOptionPane.showMessageDialog(this, "Pilih Kode Produk terlebih dahulu!");
             return;
         }
 
@@ -454,11 +470,11 @@ public class PanelPenjualan extends javax.swing.JPanel {
         }
 
         hitungTotalKeranjang();
-        jTextField9.setText("");
+        jComboBox1.setSelectedIndex(0);
         jTextField10.setText("");
         jTextField11.setText("");
         jTextField12.setText("");
-        jTextField9.requestFocus();   // TODO add your handling code here:
+        jComboBox1.requestFocus();   // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
@@ -588,6 +604,7 @@ public class PanelPenjualan extends javax.swing.JPanel {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -613,6 +630,5 @@ public class PanelPenjualan extends javax.swing.JPanel {
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
     // End of variables declaration//GEN-END:variables
 }
