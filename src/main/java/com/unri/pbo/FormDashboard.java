@@ -88,19 +88,23 @@ public class FormDashboard extends javax.swing.JFrame {
                 }
             }
 
-            // 5. Isi Tabel Transaksi Terbaru -> jTable1
+            // 5. Isi Tabel Transaksi Terbaru -> jTable1 (Mengambil dari DataStore.daftarRiwayat seperti PanelRiwayat)
+            DataStore.loadRiwayatFromDB();
             javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
             model.setRowCount(0);
-            String sqlTabel = "SELECT id_transaksi, tanggal, total_harga, jenis, nama_item, jumlah FROM transaksi ORDER BY tanggal DESC LIMIT 50";
-            try (java.sql.Statement st = conn.createStatement(); java.sql.ResultSet rs = st.executeQuery(sqlTabel)) {
-                while (rs.next()) {
-                    String noTrx = rs.getString("id_transaksi");
-                    String waktu = rs.getString("tanggal");
-                    String total = kursIDR.format(rs.getDouble("total_harga"));
-                    String keterangan = rs.getString("jenis") + " - " + rs.getString("nama_item") + " (" + rs.getInt("jumlah") + " pcs)";
 
-                    model.addRow(new Object[]{noTrx, waktu, namaKasir, total, keterangan});
-                }
+            int batas = Math.min(DataStore.daftarRiwayat.size(), 50);
+            for (int i = 0; i < batas; i++) {
+                DataStore.Transaksi t = DataStore.daftarRiwayat.get(i);
+                String keterangan = t.jenis + " - " + t.namaItem + " (" + t.jumlah + " pcs)";
+
+                model.addRow(new Object[]{
+                    t.idTransaksi,
+                    t.tanggal,
+                    namaKasir,
+                    DataStore.formatRupiah(t.totalHarga),
+                    keterangan
+                });
             }
 
         } catch (java.sql.SQLException e) {
@@ -469,11 +473,11 @@ public class FormDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem10ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-
+        gantiHalaman(new PanelPelanggan());
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
-
+        gantiHalaman(new PanelSupplier());
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed

@@ -263,7 +263,7 @@ public class PanelRiwayat extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        // TODO add your handling code here:
+      tampilRiwayat();  // TODO add your handling code here:
     }//GEN-LAST:event_jButton8ActionPerformed
 
 
